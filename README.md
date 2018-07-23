@@ -164,4 +164,4 @@ With this done, let's move to the rest of our dependencies.
 
     mock --buildsrpm --root centos-7-x86_64 --configdir=. \
         --spec=SPECS/qpid-dispatch.spec --sources=SOURCES/ --resultdir=SRPMS/
-    mock --rebuild --root centos-7-x86_64 --configdir=. --resultdir=RPMS/qpid-dispatch-1.0.1-1.el7.src.rpm
+    mock --rebuild --root centos-7-x86_64 --configdir=. --resultdir=RPMS/ SRPMS/qpid-dispatch-1.0.1-1.el7.src.rpm
