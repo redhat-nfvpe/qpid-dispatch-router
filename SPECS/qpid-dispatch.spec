@@ -18,7 +18,7 @@
 %global libwebsockets_minimum_version 2.1.0
 
 Name:          qpid-dispatch
-Version:       1.0.1
+Version:       1.2.0
 Release:       1%{?dist}
 Summary:       Dispatch router for Qpid
 License:       ASL 2.0
@@ -276,6 +276,9 @@ rm -fr %{buildroot}/%{_datarootdir}/qpid-dispatch/console/stand-alone
 
 
 %changelog
+* Mon Jul 23 2018 Leif Madsen <leif@redhat.com> - 1.2.0-1
+- Rebased to 1.2.0
+
 * Tue Nov 21 2017 Irina Boverman <iboverma@redhat.com> - 1.0.0-1
 - Rebased to 1.0.0
 - Added DISPATCH-881 fix

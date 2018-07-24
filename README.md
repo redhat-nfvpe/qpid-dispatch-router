@@ -8,6 +8,8 @@ The `./buildit.sh` script will result in a set of RPMs that can be consumed by
 It is expected that `mock` is installed on your system and that your current
 user is in the `mock` system group.
 
+These instructions have been tested on Fedora 27 and 28.
+
 # Building for CentOS
 
 Building for CentOS will require additional effort since you'll need to
@@ -24,7 +26,7 @@ You'll need to install the following dependencies:
 
 Install the dependencies with the following command.
 
-    sudo yum install git mock -y
+    sudo dnf install git mock yum-utils -y
 
 ## Creating a Build User
 
@@ -58,6 +60,15 @@ You can download them with the following commands.
     dnf download --enablerepo=updates-source --enablerepo=fedora-source libwebsockets.src
     dnf download --enablerepo=updates-source --enablerepo=fedora-source libev.src
 
+> **NOTE**
+>
+> Currently in Fedora 28, the `qpid-proton` release is 0.21 which is too old for
+> qpid-dispatch-router 1.2.0. In order to build 1.2.0, you'll need `qpid-proton`
+> version 0.23 or newer. A development spec file has been provided in this repo
+> within the `SPECS/` directory. You'll need to download the source files and
+> place them in the `SOURCES/` directory of `~/rpmbuild/`. The source for
+> `qpid-proton` is available at https://qpid.apache.org/releases/qpid-proton-0.24.0/
+
 If your build machine is not the same you're downloading from, then upload them
 now.
 
@@ -67,7 +78,7 @@ now.
 
 Install the source dependencies into your `~/rpmbuild/` directory with `rpm`.
 
-    rpm -Uvh libev-4.24-4.fc27.src.rpm libwebsockets-2.3.0-2.fc27.src.rpm qpid-proton-0.18.1-1.fc27.src.rpm
+    rpm --prefix=~ -Uvh libev-4.24-4.fc27.src.rpm libwebsockets-2.3.0-2.fc27.src.rpm qpid-proton-0.18.1-1.fc27.src.rpm
 
 ## Create Local RPM Repo for Dependencies
 
@@ -78,10 +89,10 @@ To make it easier to rebuild our libraries we create a local RPM repository on
 our build system and make that available as a repository to the chroot when
 mock is building our RPMs for us.
 
-First, copy the default `centos-7-x86_64` build root configuration file into
+First, copy the default `epel-7-x86_64` build root configuration file into
 your `~/rpmbuild/` directory.
 
-    cp /etc/mock/centos-7-x86_64 ~/rpmbuild/
+    cp /etc/mock/epel-7-x86_64 ~/rpmbuild/
 
 And now append the following text to that configuration file to expose the RPM
 repository we'll create in a second.
@@ -122,9 +133,9 @@ The order of dependency build will be the following.
 So let's start with building out our first library, `libev`.
 
     cd ~/rpmbuild/
-    mock --buildsrpm --root centos-7-x86_64 --configdir=. \
+    mock --buildsrpm --root epel-7-x86_64 --configdir=. \
         --spec=SPECS/libev.spec --sources=SOURCES/ --resultdir=SRPMS/
-    mock --rebuild --root centos-7-x86_64 --configdir=. --resultdir=RPMS/ libev-4.24-4.el7.src.rpm
+    mock --rebuild --root epel-7-x86_64 --configdir=. --resultdir=RPMS/ SRPMS/libev-4.24-4.el7.src.rpm
 
 Now that we have our first library built (ideally everything has worked for
 you, at least it did for me :)), we need to create our local repository.
@@ -137,18 +148,18 @@ With this done, let's move to the rest of our dependencies.
 ### `libwebsockets`
 
     cd ~/rpmbuild/
-    mock --buildsrpm --root centos-7-x86_64 --configdir=. \
+    mock --buildsrpm --root epel-7-x86_64 --configdir=. \
         --spec=SPECS/libwebsockets.spec --sources=SOURCES/ --resultdir=SRPMS/
-    mock --rebuild --root centos-7-x86_64 --configdir=. --resultdir=RPMS/ libwebsockets-2.3.0-2.el7.src.rpm
+    mock --rebuild --root epel-7-x86_64 --configdir=. --resultdir=RPMS/ SRPMS/libwebsockets-2.3.0-2.el7.src.rpm
     cd ~/rpmbuild/RPMS/
     createrepo_c .
 
 ### `qpid-proton`
 
     cd ~/rpmbuild/
-    mock --buildsrpm --root centos-7-x86_64 --configdir=. \
+    mock --buildsrpm --root epel-7-x86_64 --configdir=. \
         --spec=SPECS/qpid-proton.spec --sources=SOURCES/ --resultdir=SRPMS/
-    mock --rebuild --root centos-7-x86_64 --configdir=. --resultdir=RPMS/ qpid-proton-0.18.1-1.el7.src.rpm
+    mock --rebuild --root epel-7-x86_64 --configdir=. --resultdir=RPMS/ SRPMS/qpid-proton-0.24.0-1.el7.src.rpm
     cd ~/rpmbuild/RPMS/
     createrepo_c .
 
@@ -160,8 +171,8 @@ With this done, let's move to the rest of our dependencies.
     cp -r ./SPECS/* ~/rpmbuild/SPECS
     cp -r ./SOURCES/* ~/rpmbuild/SOURCES/
     cd ~/rpmbuild/
-    curl -sSL http://www.apache.org/dist/qpid/dispatch/1.0.1/qpid-dispatch-1.0.1.tar.gz -o SOURCES/qpid-dispatch-1.0.1.tar.gz
+    curl -sSL http://www.apache.org/dist/qpid/dispatch/1.2.0/qpid-dispatch-1.2.0.tar.gz -o SOURCES/qpid-dispatch-1.2.0.tar.gz
 
-    mock --buildsrpm --root centos-7-x86_64 --configdir=. \
+    mock --buildsrpm --root epel-7-x86_64 --configdir=. \
         --spec=SPECS/qpid-dispatch.spec --sources=SOURCES/ --resultdir=SRPMS/
-    mock --rebuild --root centos-7-x86_64 --configdir=. --resultdir=RPMS/ SRPMS/qpid-dispatch-1.0.1-1.el7.src.rpm
+    mock --rebuild --root epel-7-x86_64 --configdir=. --resultdir=RPMS/ SRPMS/qpid-dispatch-1.2.0-1.el7.src.rpm
