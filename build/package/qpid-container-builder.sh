@@ -13,7 +13,7 @@ dnf install --installroot $scratchmnt --release 28 \
 
 # install QPID dispatch router and dependencies
 cd /home/mockbuild/rpmbuild/RPMS/
-dnf install --installroot $scratchmnt \
+dnf install -y --installroot $scratchmnt \
 	qpid-dispatch-router-1.2.0-1.el7.x86_64.rpm \
 	qpid-proton-c-0.24.0-2.el7.x86_64.rpm \
 	qpid-proton-cpp-0.24.0-2.el7.x86_64.rpm \
