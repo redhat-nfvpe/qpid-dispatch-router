@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/usr/bin/env bash
 
 # create scratch container
 newcontainer=$(buildah from scratch)
@@ -7,17 +7,24 @@ newcontainer=$(buildah from scratch)
 scratchmnt=$(buildah mount $newcontainer)
 
 # install bash and coreutils
-dnf install --installroot $scratchmnt --release 28 \
+dnf install --assumeyes --installroot $scratchmnt --releasever=28 \
 	bash coreutils \
-	--setopt install_weak_deps=false -y
+	--setopt install_weak_deps=false \
+	--setopt tsflags=nodocs
 
 # install QPID dispatch router and dependencies
 cd /home/mockbuild/rpmbuild/RPMS/
-dnf install -y --installroot $scratchmnt \
+dnf install --assumeyes --installroot $scratchmnt \
+	--setopt install_weak_deps=false \
+	--setopt tsflags=nodocs \
 	qpid-dispatch-router-1.2.0-1.el7.x86_64.rpm \
+	qpid-dispatch-tools-1.2.0-1.el7.x86_64.rpm \
 	qpid-proton-c-0.24.0-2.el7.x86_64.rpm \
 	qpid-proton-cpp-0.24.0-2.el7.x86_64.rpm \
 	python2-qpid-proton-0.24.0-2.el7.x86_64.rpm
+
+# clean up our cache to keep the image small
+dnf clean all --assumeyes --installroot $scratchmnt --releasever=28
 
 # set the default start up command
 buildah config --cmd /usr/sbin/qdrouterd $newcontainer
