@@ -78,7 +78,7 @@ now.
 
 Install the source dependencies into your `~/rpmbuild/` directory with `rpm`.
 
-    rpm --prefix=~ -Uvh libev-4.24-4.fc27.src.rpm libwebsockets-2.3.0-2.fc27.src.rpm qpid-proton-0.18.1-1.fc27.src.rpm
+    rpm --prefix=$HOME -Uvh libev-4.24-4.fc27.src.rpm libwebsockets-2.3.0-2.fc27.src.rpm qpid-proton-0.18.1-1.fc27.src.rpm
 
 ## Create Local RPM Repo for Dependencies
 
@@ -92,7 +92,7 @@ mock is building our RPMs for us.
 First, copy the default `epel-7-x86_64` build root configuration file into
 your `~/rpmbuild/` directory.
 
-    cp /etc/mock/epel-7-x86_64 ~/rpmbuild/
+    cp /etc/mock/epel-7-x86_64* ~/rpmbuild/
 
 And now append the following text to that configuration file to expose the RPM
 repository we'll create in a second.
